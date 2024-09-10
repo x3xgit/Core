@@ -67,7 +67,7 @@ public class Menu extends CoreListener {
         this.page = page;
     }
 
-    public @NotNull Integer getPage() {
+    public final @NotNull Integer getPage() {
         return page;
     }
 

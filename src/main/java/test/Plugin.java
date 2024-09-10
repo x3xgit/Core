@@ -16,7 +16,7 @@ public class Plugin extends Core {
 
     @Override
     protected void onFinish() {
-        getLogger().info("Plugin is finished.");
+        getCoreLogger().information("Plugin is finished.");
     }
 
     public static Plugin getInstance() {

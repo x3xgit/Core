@@ -10,10 +10,12 @@ import java.util.Map;
 public class CoreListener implements Listener {
     private static final Map<Class<? extends CoreListener>, CoreListener> coreListeners = new LinkedHashMap<>();
 
-    private boolean isRegistered = false;
+    private boolean isAutoRegister;
     private Listener listener;
 
     public CoreListener(boolean autoRegister) {
+        this.isAutoRegister = autoRegister;
+
         if (autoRegister)
             this.register();
     }
@@ -22,28 +24,26 @@ public class CoreListener implements Listener {
         new CoreListener(false);
     }
 
-    protected final void register() {
-        if (this.isRegistered)
-            return;
+    public final void register() {
+        if (!this.isRegistered()) {
+            this.listener = this;
 
-        this.listener = this;
-
-        if (!coreListeners.containsKey(this.getClass())) {
             CoreRegisterer.registerListener(Core.getInstance(), this);
             coreListeners.put(this.getClass(), this);
         }
-
-        this.isRegistered = true;
     }
 
-    protected final void unregister() {
-        if (!isRegistered)
-            return;
+    public final void unregister() {
+        if (this.isRegistered()) {
+            this.listener = null;
 
-        this.listener = null;
+            coreListeners.remove(this.getClass(), this);
+            CoreRegisterer.stopListener(this);
+        }
+    }
 
-        coreListeners.remove(this.getClass(), this);
-        CoreRegisterer.stopListener(this);
+    private boolean isRegistered() {
+        return coreListeners.containsKey(this.getClass()) && this.listener != null;
     }
 
     public static Map<Class<? extends CoreListener>, CoreListener> getCoreListeners() {

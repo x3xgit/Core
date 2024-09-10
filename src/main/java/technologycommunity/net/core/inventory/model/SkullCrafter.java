@@ -3,6 +3,7 @@ package technologycommunity.net.core.inventory.model;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+@Deprecated
 public class SkullCrafter {
     final ItemStack item;
 
