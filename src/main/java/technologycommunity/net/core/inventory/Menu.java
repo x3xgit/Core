@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import technologycommunity.net.core.event.CoreListener;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.buttons.Button;
-import technologycommunity.net.core.inventory.model.ItemCrafter;
 import technologycommunity.net.core.inventory.structures.Position;
 import technologycommunity.net.core.inventory.structures.RegisteredMenu;
 import technologycommunity.net.core.inventory.structures.Viewer;
@@ -187,54 +186,6 @@ public class Menu extends CoreListener {
     public final void displayTo(Player player) {
         this.viewer = new Viewer(player, this);
 
-        this.registerButton(
-                new Button() {
-                    @Override
-                    public void onButtonClick(Viewer clicker, Button button, Menu menu) {
-                        nextPage();
-
-                        clicker.play(Sound.ENTITY_PARROT_FLY);
-                        clicker.tell("&aFiouhhh!");
-                    }
-
-                    @Override
-                    public @NotNull Position getPosition() {
-                        return Position.of(12, 1);
-                    }
-
-                    @Override
-                    public @NotNull ItemStack getItem() {
-                        return ItemCrafter.of(Material.BAMBOO)
-                                .setTitle("&aBamboo &7&l>")
-                                .craft();
-                    }
-                }
-        );
-
-        this.registerButton(
-                new Button() {
-                    @Override
-                    public void onButtonClick(Viewer clicker, Button button, Menu menu) {
-                        previousPage();
-
-                        clicker.play(Sound.ENTITY_PARROT_FLY);
-                        clicker.tell("&dFiouhhh!");
-                    }
-
-                    @Override
-                    public @NotNull Position getPosition() {
-                        return Position.of(14, 2);
-                    }
-
-                    @Override
-                    public @NotNull ItemStack getItem() {
-                        return ItemCrafter.of(Material.BAMBOO)
-                                .setTitle("&dPink Bamboo &7&l<")
-                                .craft();
-                    }
-                }
-        );
-
         this.drawPages();
 
         this.viewer.openMenu();
@@ -264,7 +215,7 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public void onInventoryClickEvent(InventoryClickEvent event) {
+    public final void onInventoryClickEvent(InventoryClickEvent event) {
         final Player player = (Player) event.getWhoClicked();
         final Menu menu = getMenu(event.getClickedInventory());
 
@@ -274,7 +225,7 @@ public class Menu extends CoreListener {
         event.setCancelled(true);
 
         if (event.getCurrentItem() == null)
-            this.onEmptyClick(this.viewer, Position.of(this.getPage(), event.getSlot()));
+            this.onEmptySlotClick(this.viewer, Position.of(this.getPage(), event.getSlot()));
 
         final Button button = this.getButton(Position.of(event.getSlot(), this.getPage()));
 
@@ -283,7 +234,7 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public void onInventoryOpenEvent(InventoryOpenEvent event) {
+    public final void onInventoryOpenEvent(InventoryOpenEvent event) {
         final Player player = (Player) event.getPlayer();
         final Menu menu = getMenu(event.getInventory());
 
@@ -294,7 +245,7 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public void onInventoryCloseEvent(InventoryCloseEvent event) {
+    public final void onInventoryCloseEvent(InventoryCloseEvent event) {
         final Player player = (Player) event.getPlayer();
         final Menu menu = getMenu(event.getInventory());
 
@@ -302,32 +253,32 @@ public class Menu extends CoreListener {
             return;
 
         if (this.viewer.isUpdating())
-            if (menu.getPage().equals(menu.lastPage))
-                menu.onMenuPageChange(this.viewer, menu, this.getPage());
+            if (menu.getPage().equals(this.lastPage))
+                menu.onMenuPageChange(this.viewer, menu, menu.lastPage, menu.getPage());
             else menu.onMenuUpdate(this.viewer, menu);
         else {
-            this.resetPages();
-            this.onMenuClose(this.viewer, menu);
+            menu.resetPages();
+            menu.onMenuClose(this.viewer, menu);
         }
     }
 
-    protected final void onEmptyClick(Viewer clicker, Position position) {
+    protected void onEmptySlotClick(Viewer clicker, Position position) {
 
     }
 
-    protected final void onMenuPageChange(Viewer viewer, Menu menu, Integer newPage) {
+    protected void onMenuPageChange(Viewer viewer, Menu menu, Integer oldPage, Integer newPage) {
 
     }
 
-    protected final void onMenuUpdate(Viewer viewer, Menu menu) {
+    protected void onMenuUpdate(Viewer viewer, Menu menu) {
 
     }
 
-    protected final void onMenuOpen(Viewer viewer, Menu menu) {
+    protected void onMenuOpen(Viewer viewer, Menu menu) {
 
     }
 
-    protected final void onMenuClose(Viewer viewer, Menu menu) {
+    protected void onMenuClose(Viewer viewer, Menu menu) {
 
     }
 
