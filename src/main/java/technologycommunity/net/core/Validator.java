@@ -1,5 +1,6 @@
 package technologycommunity.net.core;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import org.bukkit.inventory.ItemStack;
@@ -46,8 +47,14 @@ public class Validator {
         return false;
     }
 
-    public static void validate(Artist artist) {
+    public static boolean valid(Artist artist) {
         if (artist == null)
-            throw new CoreException("Couldn't get artist because it's null.");
+            return false;
+
+        return true;
+    }
+
+    public static boolean valid(Artist artist, Player player) {
+        return player.getUniqueId().equals(artist.getPlayer().getUniqueId());
     }
 }

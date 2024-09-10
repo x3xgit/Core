@@ -1,5 +1,6 @@
 package technologycommunity.net.core.event;
 
+import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import technologycommunity.net.core.plugin.Core;
@@ -10,7 +11,7 @@ import java.util.Map;
 public class CoreListener implements Listener {
     private static final Map<Class<? extends CoreListener>, CoreListener> coreListeners = new LinkedHashMap<>();
 
-    private boolean isAutoRegister;
+    private final boolean isAutoRegister;
     private Listener listener;
 
     public CoreListener(final boolean autoRegister) {
@@ -21,7 +22,7 @@ public class CoreListener implements Listener {
     }
 
     public CoreListener() {
-        new CoreListener(false);
+        this(false);
     }
 
     public final void register() {

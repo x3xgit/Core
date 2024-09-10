@@ -17,7 +17,6 @@ import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.buttons.Button;
 import technologycommunity.net.core.inventory.structures.Position;
 import technologycommunity.net.core.inventory.structures.RegisteredMenu;
-import technologycommunity.net.core.plugin.Core;
 import technologycommunity.net.core.structures.Artist;
 
 import java.util.*;
@@ -36,7 +35,7 @@ public class Menu extends CoreListener {
 
     private boolean isUpdating = false;
 
-    private Menu parent = null;
+    private final Menu parent;
 
     // Constructor
     protected Menu(Menu parent) {
@@ -52,18 +51,18 @@ public class Menu extends CoreListener {
     }
 
     protected Menu() {
-        new Menu(null);
+        this(null);
     }
 
-    protected final void setTitle(@NotNull String title) {
+    protected final void setTitle(final @NotNull String title) {
         this.title = title;
     }
 
-    protected final void setSize(@NotNull Integer size) {
+    protected final void setSize(final @NotNull Integer size) {
         this.size = size;
     }
 
-    private void setPage(@NotNull Integer page) {
+    private void setPage(final @NotNull Integer page) {
         this.lastPage = this.page;
         this.page = page;
     }
@@ -73,7 +72,7 @@ public class Menu extends CoreListener {
     }
 
     private void resetPages() {
-        this.setPage(this.getFirstPage());
+        this.setPage(getFirstPage());
     }
 
     public final Integer getFirstPage() {
@@ -156,7 +155,6 @@ public class Menu extends CoreListener {
 
                 if (isItemsSimilarFromTwoInventories(itemsFromGivenInventory, itemsFromPageInventory))
                     return registeredMenu.getMenuObject();
-                else Core.getInstance().getCoreLogger().information("Inventories are not similar (getMenu());");
             }
         }
 
@@ -168,10 +166,8 @@ public class Menu extends CoreListener {
 
         for (Map.Entry<Integer, ItemStack> firstInventoryItemSlot : firstInventory.entrySet())
             if (secondInventory.get(firstInventoryItemSlot.getKey()) != null && firstInventoryItemSlot.getValue() != null)
-                if (!secondInventory.get(firstInventoryItemSlot.getKey()).isSimilar(firstInventoryItemSlot.getValue())) {
-                    Core.getInstance().getCoreLogger().information("Item is not similar (isItemsSimilarFromTwoInventories());");
+                if (!secondInventory.get(firstInventoryItemSlot.getKey()).isSimilar(firstInventoryItemSlot.getValue()))
                     return false;
-                }
 
         return true;
     }
@@ -181,8 +177,8 @@ public class Menu extends CoreListener {
         this.openMenu();
     }
 
-    public final void openMenu() {
-        Validator.validate(this.viewer);
+    protected final void openMenu() {
+        if (!Validator.valid(this.viewer)) return;
 
         if (this.getPages().isEmpty())
             this.drawPages();
@@ -190,8 +186,8 @@ public class Menu extends CoreListener {
         this.viewer.openInventory(this.getInventory(getFirstPage()));
     }
 
-    public final void updateMenu() {
-        Validator.validate(this.viewer);
+    protected final void updateMenu() {
+        if (!Validator.valid(this.viewer)) return;
 
         this.drawPages();
         this.update(this::openMenu);
@@ -223,10 +219,9 @@ public class Menu extends CoreListener {
     @EventHandler
     public final void onInventoryClickEvent(final InventoryClickEvent event) {
         final Player player = (Player) event.getWhoClicked();
-        final Menu menu = getMenu(event.getClickedInventory());
 
-        if (!(menu != null && this.viewer != null && this.viewer.isSimilar(player)))
-            return;
+        if (!Validator.valid(this.viewer)) return;
+        if (!Validator.valid(this.viewer, player)) return;
 
         event.setCancelled(true);
 
@@ -236,35 +231,33 @@ public class Menu extends CoreListener {
         final Button button = this.getButton(Position.of(event.getSlot(), this.getPage()));
 
         if (button != null)
-            button.onButtonClick(this.viewer, button, menu);
+            button.onButtonClick(this.viewer, button, this);
     }
 
     @EventHandler
     public final void onInventoryOpenEvent(final InventoryOpenEvent event) {
         final Player player = (Player) event.getPlayer();
-        final Menu menu = getMenu(event.getInventory());
 
-        if (!(menu != null && this.viewer != null && this.viewer.isSimilar(player)))
-            return;
+        if (!Validator.valid(this.viewer)) return;
+        if (!Validator.valid(this.viewer, player)) return;
 
-        this.onMenuOpen(this.viewer, menu);
+        this.onMenuOpen(this.viewer, this);
     }
 
     @EventHandler
     public final void onInventoryCloseEvent(final InventoryCloseEvent event) {
         final Player player = (Player) event.getPlayer();
-        final Menu menu = getMenu(event.getInventory());
 
-        if (!(menu != null && this.viewer != null && this.viewer.isSimilar(player)))
-            return;
+        if (!Validator.valid(this.viewer)) return;
+        if (!Validator.valid(this.viewer, player)) return;
 
         if (this.isUpdating)
-            if (menu.getPage().equals(this.lastPage))
-                menu.onMenuPageChange(this.viewer, menu, menu.lastPage, menu.getPage());
-            else menu.onMenuUpdate(this.viewer, menu);
+            if (this.getPage().equals(this.lastPage))
+                this.onMenuPageChange(this.viewer, this, this.lastPage, this.getPage());
+            else this.onMenuUpdate(this.viewer, this);
         else {
-            menu.resetPages();
-            menu.onMenuClose(this.viewer, menu);
+            this.resetPages();
+            this.onMenuClose(this.viewer, this);
         }
     }
 
