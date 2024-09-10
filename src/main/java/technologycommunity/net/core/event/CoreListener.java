@@ -22,7 +22,7 @@ public class CoreListener implements Listener {
         new CoreListener(false);
     }
 
-    public final void register() {
+    protected final void register() {
         if (this.isRegistered)
             return;
 
@@ -36,7 +36,7 @@ public class CoreListener implements Listener {
         this.isRegistered = true;
     }
 
-    public final void unregister() {
+    protected final void unregister() {
         if (!isRegistered)
             return;
 

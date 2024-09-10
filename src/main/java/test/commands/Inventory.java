@@ -14,7 +14,7 @@ public class Inventory extends CoreCommand {
     }
 
     @Override
-    protected void executeCommand(final CommandSender sender, final String label, final String[] arguments) {
+    protected void onCommandExecute(final CommandSender sender, final String label, final String[] arguments) {
         if (!(sender instanceof Player player))
             return;
 

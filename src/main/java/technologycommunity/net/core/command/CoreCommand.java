@@ -21,8 +21,12 @@ public class CoreCommand extends Command {
     private String playerOnlyMessage = Colorizer.color("&cThis command is only for players.");
     private String permissionMessage = Colorizer.color("&cYou don't have a permission.");
 
+    private String label;
+
     public CoreCommand(@NotNull String label) {
         super(label);
+
+        this.label = label;
     }
 
     public final void register() {
@@ -30,6 +34,9 @@ public class CoreCommand extends Command {
 
         if (commandMap == null)
             throw new CoreException("Couldn't get command map, command was not registered.");
+
+        if (commandMap.getCommand(this.label) != null)
+            throw new CoreException("Couldn't register this command because its already registered.");
 
         commandMap.register(
                 Core.getInstance().getDescription().getName().toLowerCase(), this);
@@ -45,7 +52,7 @@ public class CoreCommand extends Command {
         }
     }
 
-    protected void executeCommand(CommandSender sender, String label, String[] arguments) {
+    protected void onCommandExecute(CommandSender sender, String label, String[] arguments) {
 
     }
 
@@ -74,7 +81,7 @@ public class CoreCommand extends Command {
                 return true;
             }
 
-        this.executeCommand(commandSender, s, strings);
+        this.onCommandExecute(commandSender, s, strings);
 
         return true;
     }
