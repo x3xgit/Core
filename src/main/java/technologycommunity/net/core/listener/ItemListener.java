@@ -15,14 +15,14 @@ public class ItemListener extends CoreListener {
 
     private final ItemStack item;
 
-    public ItemListener(ItemStack item) {
+    public ItemListener(final ItemStack item) {
         super(false);
 
         this.item = item;
     }
 
     @EventHandler
-    public final void onPlayerInteract(PlayerInteractEvent event) {
+    public final void onPlayerInteract(final PlayerInteractEvent event) {
         final ItemStack item = event.getItem();
 
         if (item == null) return;
@@ -33,7 +33,7 @@ public class ItemListener extends CoreListener {
         this.onItemClick(event.getPlayer(), event.getHand(), item, event.getAction());
     }
 
-    protected void onItemClick(Player player, EquipmentSlot equipmentSlot, ItemStack item, Action action) {
+    protected void onItemClick(final Player player, final EquipmentSlot equipmentSlot, final ItemStack item, final Action action) {
 
     }
 }

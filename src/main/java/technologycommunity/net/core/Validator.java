@@ -3,8 +3,10 @@ package technologycommunity.net.core;
 import org.bukkit.inventory.Inventory;
 
 import org.bukkit.inventory.ItemStack;
+import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.Menu;
 import technologycommunity.net.core.inventory.structures.RegisteredMenu;
+import technologycommunity.net.core.structures.Artist;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,6 @@ public class Validator {
     public static boolean isMenu(Inventory inventory) {
         for (RegisteredMenu registeredMenu : Menu.getRegisteredMenuList())
         {
-            // Menu validator
             Map<Integer, ItemStack> inventoryItems = new HashMap<>();
 
             for (int slot = 0; slot < inventory.getSize(); slot++)
@@ -43,5 +44,10 @@ public class Validator {
         }
 
         return false;
+    }
+
+    public static void validate(Artist artist) {
+        if (artist == null)
+            throw new CoreException("Couldn't get artist because it's null.");
     }
 }

@@ -13,7 +13,7 @@ public class CoreListener implements Listener {
     private boolean isAutoRegister;
     private Listener listener;
 
-    public CoreListener(boolean autoRegister) {
+    public CoreListener(final boolean autoRegister) {
         this.isAutoRegister = autoRegister;
 
         if (autoRegister)

@@ -1,7 +1,5 @@
 package technologycommunity.net.core.inventory;
 
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -13,13 +11,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import technologycommunity.net.core.Validator;
 import technologycommunity.net.core.event.CoreListener;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.buttons.Button;
 import technologycommunity.net.core.inventory.structures.Position;
 import technologycommunity.net.core.inventory.structures.RegisteredMenu;
-import technologycommunity.net.core.inventory.structures.Viewer;
 import technologycommunity.net.core.plugin.Core;
+import technologycommunity.net.core.structures.Artist;
 
 import java.util.*;
 
@@ -33,7 +32,9 @@ public class Menu extends CoreListener {
     private @NotNull Integer size;
     private @NotNull Integer page = 1;
     private @NotNull Integer lastPage = 1;
-    private @Nullable Viewer viewer = null;
+    private @Nullable Artist viewer = null;
+
+    private boolean isUpdating = false;
 
     private Menu parent = null;
 
@@ -77,14 +78,6 @@ public class Menu extends CoreListener {
 
     public final Integer getFirstPage() {
         return 1;
-    }
-
-    private void updateMenu() {
-        this.drawPages();
-
-        if (this.viewer != null)
-            this.viewer.reOpenMenu();
-        else throw new CoreException("Can't update menu because viewer is not found.");
     }
 
     protected final boolean canGo(Integer page) {
@@ -184,11 +177,24 @@ public class Menu extends CoreListener {
     }
 
     public final void displayTo(Player player) {
-        this.viewer = new Viewer(player, this);
+        this.viewer = Artist.of(player);
+        this.openMenu();
+    }
+
+    public final void openMenu() {
+        Validator.validate(this.viewer);
+
+        if (this.getPages().isEmpty())
+            this.drawPages();
+
+        this.viewer.openInventory(this.getInventory(getFirstPage()));
+    }
+
+    public final void updateMenu() {
+        Validator.validate(this.viewer);
 
         this.drawPages();
-
-        this.viewer.openMenu();
+        this.update(this::openMenu);
     }
 
     public final @NotNull Map<Integer, Inventory> getPages() {
@@ -215,7 +221,7 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public final void onInventoryClickEvent(InventoryClickEvent event) {
+    public final void onInventoryClickEvent(final InventoryClickEvent event) {
         final Player player = (Player) event.getWhoClicked();
         final Menu menu = getMenu(event.getClickedInventory());
 
@@ -234,7 +240,7 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public final void onInventoryOpenEvent(InventoryOpenEvent event) {
+    public final void onInventoryOpenEvent(final InventoryOpenEvent event) {
         final Player player = (Player) event.getPlayer();
         final Menu menu = getMenu(event.getInventory());
 
@@ -245,14 +251,14 @@ public class Menu extends CoreListener {
     }
 
     @EventHandler
-    public final void onInventoryCloseEvent(InventoryCloseEvent event) {
+    public final void onInventoryCloseEvent(final InventoryCloseEvent event) {
         final Player player = (Player) event.getPlayer();
         final Menu menu = getMenu(event.getInventory());
 
         if (!(menu != null && this.viewer != null && this.viewer.isSimilar(player)))
             return;
 
-        if (this.viewer.isUpdating())
+        if (this.isUpdating)
             if (menu.getPage().equals(this.lastPage))
                 menu.onMenuPageChange(this.viewer, menu, menu.lastPage, menu.getPage());
             else menu.onMenuUpdate(this.viewer, menu);
@@ -262,27 +268,31 @@ public class Menu extends CoreListener {
         }
     }
 
-    protected void onEmptySlotClick(Viewer clicker, Position position) {
+    protected void onEmptySlotClick(final Artist artist, final Position position) {
 
     }
 
-    protected void onMenuPageChange(Viewer viewer, Menu menu, Integer oldPage, Integer newPage) {
+    protected void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
 
     }
 
-    protected void onMenuUpdate(Viewer viewer, Menu menu) {
+    protected void onMenuUpdate(final Artist artist, final Menu menu) {
 
     }
 
-    protected void onMenuOpen(Viewer viewer, Menu menu) {
+    protected void onMenuOpen(final Artist artist, final Menu menu) {
 
     }
 
-    protected void onMenuClose(Viewer viewer, Menu menu) {
+    protected void onMenuClose(final Artist artist, final Menu menu) {
 
     }
 
     public final Menu getParentMenu() {
         return this.parent;
+    }
+
+    private void update(final Runnable task) {
+        this.isUpdating = true; task.run(); this.isUpdating = false;
     }
 }
