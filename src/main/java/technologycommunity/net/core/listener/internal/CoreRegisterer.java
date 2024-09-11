@@ -1,4 +1,4 @@
-package technologycommunity.net.core.event;
+package technologycommunity.net.core.listener.internal;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;

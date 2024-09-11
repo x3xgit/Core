@@ -8,6 +8,7 @@ import technologycommunity.net.core.plugin.Core;
 import test.commands.GetBook;
 import test.commands.GetMap;
 import test.commands.Inventory;
+import test.listener.MyItemListener;
 
 public class Plugin extends Core {
     public ItemStack item = ItemCrafter.of(Material.FURNACE).setTitle("&9&k| &bSpells Book &9&k|").craft();

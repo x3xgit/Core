@@ -6,7 +6,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import technologycommunity.net.core.event.CoreListener;
+import technologycommunity.net.core.listener.internal.CoreListener;
 
 public class ItemListener extends CoreListener {
     /*

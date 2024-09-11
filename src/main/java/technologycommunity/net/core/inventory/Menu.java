@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.Validator;
-import technologycommunity.net.core.event.CoreListener;
+import technologycommunity.net.core.listener.internal.CoreListener;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.buttons.Button;
 import technologycommunity.net.core.inventory.structures.Position;

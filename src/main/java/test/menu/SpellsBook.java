@@ -1,4 +1,4 @@
-package test.commands;
+package test.menu;
 
 import org.bukkit.Material;
 import org.bukkit.Sound;
