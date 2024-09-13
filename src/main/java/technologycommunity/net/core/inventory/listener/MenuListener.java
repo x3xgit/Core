@@ -41,7 +41,7 @@ public class MenuListener extends CoreListener {
         final Button button = menu.getButton(Position.of(slot, page));
 
         if (button != null)
-            button.onButtonClick(menu.getViewer(), button, menu);
+            button.onButtonClick(menu.getViewer(), menu);
     }
 
     @EventHandler

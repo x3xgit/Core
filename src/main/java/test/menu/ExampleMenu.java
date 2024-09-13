@@ -15,7 +15,7 @@ public class ExampleMenu extends Menu {
         this.registerButton(
                 new Button() {
                     @Override
-                    public void onButtonClick(Artist clicker, Button button, Menu menu) {
+                    public void onButtonClick(final Artist clicker, final Menu menu) {
                         clicker.tell("&aThis is ExampleMenu, displaying to SecondMenu()...");
                         new SecondMenu().displayTo(clicker.getPlayer());
                     }

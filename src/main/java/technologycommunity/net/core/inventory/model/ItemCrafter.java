@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ItemCrafter {
-    protected ItemCrafter(Material material) {
+    private ItemCrafter(Material material) {
         this.material = material;
     }
 
@@ -28,7 +28,6 @@ public class ItemCrafter {
 
     private boolean hideAttributes = true;
     private boolean enchanted = false;
-
 
     public static ItemCrafter of(Material material) {
         return new ItemCrafter(material);
@@ -47,6 +46,10 @@ public class ItemCrafter {
     public ItemCrafter setLore(List<String> lore) {
         this.lore = lore;
         return this;
+    }
+
+    public ItemCrafter setLore(String[] lore) {
+        return this.setLore(Arrays.stream(lore).toList());
     }
 
     public ItemCrafter addLore(String... loreLines) {
@@ -70,29 +73,28 @@ public class ItemCrafter {
     }
 
     public final ItemStack craft() {
-        ItemStack item = new ItemStack(this.material, amount);
-
-        /*if (material == Material.PLAYER_HEAD && this.headTexture != null)
-            HeadCreator.builder().setTexture(this.headTexture);*/
-
-        ItemMeta meta = item.getItemMeta();
-
-        if (this.enchanted)
-            item.addUnsafeEnchantment(Enchantment.KNOCKBACK, 0);
+        final ItemStack item = new ItemStack(this.material, amount);
+        final ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
             if (this.title != null)
                 meta.setDisplayName(ChatColor.GRAY + Colorizer.color(this.title));
             if (this.hideAttributes)
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-            if (this.enchanted)
+            if (this.enchanted) {
+                meta.addEnchant(Enchantment.KNOCKBACK, 1, false);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
 
             meta.setLore(lore.stream().map(Colorizer::color).toList());
-
             item.setItemMeta(meta);
         }
 
         return item;
     }
+
+    /*
+    if (material == Material.PLAYER_HEAD && this.headTexture != null)
+        HeadCreator.builder().setTexture(this.headTexture);
+    */
 }

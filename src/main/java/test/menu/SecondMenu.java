@@ -17,7 +17,7 @@ public class SecondMenu extends Menu {
         this.registerButton(
                 new Button() {
                     @Override
-                    public void onButtonClick(Artist clicker, Button button, Menu menu) {
+                    public void onButtonClick(final Artist clicker, final Menu menu) {
                         clicker.tell("&aThis is SecondMenu, I'm closing it...");
                         //clicker.closeInventory();
                     }
@@ -36,7 +36,7 @@ public class SecondMenu extends Menu {
     }
 
     @Override
-    public void onMenuOpen(Artist artist, Menu menu) {
+    public void onMenuOpen(final Artist artist, final Menu menu) {
         artist.tell("&7SecondMenu menu is opened.");
     }
 }

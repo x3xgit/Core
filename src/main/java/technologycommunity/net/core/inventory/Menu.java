@@ -80,11 +80,11 @@ public class Menu {
         return 1;
     }
 
-    protected final boolean canGo(Integer page) {
+    protected final boolean canGo(final Integer page) {
         return page < this.pages.size();
     }
 
-    protected final boolean canBack(Integer page) {
+    protected final boolean canBack(final Integer page) {
         return page > 1;
     }
 
@@ -110,11 +110,11 @@ public class Menu {
         return false;
     }
 
-    public final void setAllowButtonClick(boolean allowButtonClick) {
+    public final void setAllowButtonClick(final boolean allowButtonClick) {
         this.allowButtonClick = allowButtonClick;
     }
 
-    public final void setAllowPlayerInventory(boolean allowPlayerInventory) {
+    public final void setAllowPlayerInventory(final boolean allowPlayerInventory) {
         this.allowPlayerInventory = allowPlayerInventory;
     }
 
@@ -143,7 +143,7 @@ public class Menu {
             .draw();
     }
 
-    public final @NotNull Inventory getInventory(Integer page) {
+    public final @NotNull Inventory getInventory(final Integer page) {
         if (this.pages.isEmpty())
             this.drawPages();
 
@@ -156,7 +156,7 @@ public class Menu {
         return this.pages.get(page);
     }
 
-    public final void displayTo(Player player) {
+    public final void displayTo(final @NotNull Player player) {
         this.viewer = Artist.of(player);
         this.openMenu();
     }
@@ -191,7 +191,7 @@ public class Menu {
         return this.pages;
     }
 
-    protected final void registerButton(Button button) {
+    protected final void registerButton(final Button button) {
         if (button.getPosition().getPage() > 100 || button.getPosition().getPage() < 1)
             throw new CoreException("Button page is higher than 100 or it's below 1, please set button page between 1-100.");
 
@@ -205,7 +205,7 @@ public class Menu {
         this.buttons.add(button);
     }
 
-    public final @Nullable Button getButton(Position position) {
+    public final @Nullable Button getButton(final Position position) {
         for (Button button : this.buttons)
             if (button.getPosition().getPage().equals(position.getPage()) && button.getPosition().getSlot().equals(position.getSlot()))
                 return button;
