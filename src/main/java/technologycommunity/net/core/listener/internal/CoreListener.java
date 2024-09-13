@@ -1,6 +1,5 @@
 package technologycommunity.net.core.listener.internal;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 
 import technologycommunity.net.core.plugin.Core;
@@ -8,7 +7,6 @@ import technologycommunity.net.core.plugin.Core;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CoreListener implements Listener {
     private static final Map<Class<? extends CoreListener>, CoreListener> coreListeners = new LinkedHashMap<>();
@@ -43,8 +41,6 @@ public class CoreListener implements Listener {
         if (add) {
             coreListeners.put(this.getClass(), this);
             CoreRegisterer.registerListener(Core.getInstance(), this);
-
-            Core.getInstance().getCoreLogger().information("Successfully registered: " + this.getClass().getSimpleName());
         } else {
             coreListeners.remove(this.getClass(), this);
             CoreRegisterer.stopListener(this);
@@ -52,12 +48,7 @@ public class CoreListener implements Listener {
     }
 
     private boolean isRegistered() {
-        final boolean isRegistered = this.getListeners().contains(this.getClass());
-
-        Core.getInstance().getCoreLogger().information("Registered Classes: [" + this.getListeners().stream().map(Class::getSimpleName).collect(Collectors.joining(", ")) + "]");
-        Core.getInstance().getCoreLogger().information("Can register: " + ((!isRegistered) ? "yes" : "no"));
-
-        return isRegistered;
+        return this.getListeners().contains(this.getClass());
     }
 
     private Set<Class<? extends CoreListener>> getListeners() {

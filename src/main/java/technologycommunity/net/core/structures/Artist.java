@@ -3,19 +3,15 @@ package technologycommunity.net.core.structures;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-
 import org.bukkit.inventory.Inventory;
+
 import technologycommunity.net.core.color.Colorizer;
 import technologycommunity.net.core.exception.CoreException;
-import technologycommunity.net.core.inventory.Menu;
 
 import java.util.UUID;
 
 public class Artist {
     private final Player player;
-
-    private boolean isUpdating = false;
-    private Menu menu = null;
 
     private Artist(Player player) {
         this.player = player;
@@ -84,6 +80,10 @@ public class Artist {
 
     public void openInventory(Inventory inventory) {
         this.player.openInventory(inventory);
+    }
+
+    public void closeInventory() {
+        this.player.closeInventory();
     }
 
     public Player getPlayer() {

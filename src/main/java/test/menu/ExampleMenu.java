@@ -16,7 +16,8 @@ public class ExampleMenu extends Menu {
                 new Button() {
                     @Override
                     public void onButtonClick(Artist clicker, Button button, Menu menu) {
-
+                        clicker.tell("&aThis is ExampleMenu, displaying to SecondMenu()...");
+                        new SecondMenu().displayTo(clicker.getPlayer());
                     }
 
                     @Override
@@ -32,5 +33,10 @@ public class ExampleMenu extends Menu {
         );
 
         this.displayTo(player);
+    }
+
+    @Override
+    public void onMenuOpen(Artist artist, Menu menu) {
+        artist.tell("&7ExampleMenu menu is opened.");
     }
 }

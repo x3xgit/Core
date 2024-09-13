@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import technologycommunity.net.core.inventory.Menu;
+import technologycommunity.net.core.inventory.listener.MenuListener;
 import technologycommunity.net.core.plugin.structures.PluginStatus;
 import technologycommunity.net.core.logger.CoreLogger;
 
@@ -38,15 +40,15 @@ public class Core extends JavaPlugin {
         if (!this.isEnabled())
             return;
 
-        this.onStart();
+        this.initialize();
+
         this.status = PluginStatus.STARTED;
+        this.onStart();
     }
 
     @Override
     public final void onLoad() {
         this.status = PluginStatus.STARTING;
-        this.initialize();
-
         this.onPreStart();
     }
 
@@ -55,10 +57,20 @@ public class Core extends JavaPlugin {
         this.status = PluginStatus.FINISHING;
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers())
-            onlinePlayer.closeInventory();
+            if (Menu.getPlayerMenu(onlinePlayer) != null) {
+                Menu.rejectPlayerMenu(onlinePlayer);
+                onlinePlayer.closeInventory();
+            }
 
         this.onFinish();
         this.status = PluginStatus.FINISHED;
+    }
+
+    protected final void initialize() {
+        instance = this;
+        key = new NamespacedKey(instance, "plugin");
+
+        new MenuListener().register();
     }
 
     public final void savePluginResource(String resourcePath) {
@@ -97,11 +109,6 @@ public class Core extends JavaPlugin {
 
     }
 
-    protected final void initialize() {
-        instance = this;
-        key = new NamespacedKey(instance, "plugin");
-    }
-
     public static NamespacedKey getKey() {
         return key;
     }
@@ -110,6 +117,10 @@ public class Core extends JavaPlugin {
         if (item.getItemMeta() == null) return false;
 
         return item.getItemMeta().getPersistentDataContainer().getKeys().contains(key);
+    }
+
+    public static String getNamed() {
+        return "Core";
     }
 
     public final CoreLogger getCoreLogger(){

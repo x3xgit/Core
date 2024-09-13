@@ -1,27 +1,26 @@
 package technologycommunity.net.core.inventory;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.Inventory;
 
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.Validator;
-import technologycommunity.net.core.listener.internal.CoreListener;
+import technologycommunity.net.core.constants.CoreConstants;
+import technologycommunity.net.core.inventory.structures.MenuStatus;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.inventory.buttons.Button;
 import technologycommunity.net.core.inventory.structures.Position;
 import technologycommunity.net.core.inventory.structures.RegisteredMenu;
+import technologycommunity.net.core.plugin.Core;
 import technologycommunity.net.core.structures.Artist;
 
 import java.util.*;
 
-public class Menu extends CoreListener {
+public class Menu {
     private static final List<RegisteredMenu> registeredMenuList = new ArrayList<>();
 
     private final List<Button> buttons = new ArrayList<>();
@@ -31,27 +30,22 @@ public class Menu extends CoreListener {
     private @NotNull Integer size;
     private @NotNull Integer page = 1;
     private @NotNull Integer lastPage = 1;
-    private @Nullable Artist viewer = null;
+    private Artist viewer = null;
 
-    private boolean isUpdating = false;
+    private MenuStatus status;
 
-    private final Menu parent;
+    private boolean allowButtonClick = false;
+    private boolean allowPlayerInventory = true;
 
     // Constructor
-    protected Menu(Menu parent) {
-        super(true);
-
-        this.parent = parent;
+    protected Menu() {
+        this.status = MenuStatus.NOT_ACTIVE;
 
         this.title = "&8Menu ({current_page}/{maximum_page})";
         this.size = 5;
 
         if (!registeredMenuList.stream().map(RegisteredMenu::getMenuClass).toList().contains(this.getClass()))
             registeredMenuList.add(RegisteredMenu.of(this.getClass(), this));
-    }
-
-    protected Menu() {
-        this(null);
     }
 
     protected final void setTitle(final @NotNull String title) {
@@ -69,6 +63,13 @@ public class Menu extends CoreListener {
 
     public final @NotNull Integer getPage() {
         return page;
+    }
+
+    public final @NotNull Integer getMaxPage() {
+        if (pages.isEmpty() && !this.buttons.isEmpty())
+            this.drawPages();
+
+        return pages.size();
     }
 
     private void resetPages() {
@@ -109,6 +110,34 @@ public class Menu extends CoreListener {
         return false;
     }
 
+    public final void setAllowButtonClick(boolean allowButtonClick) {
+        this.allowButtonClick = allowButtonClick;
+    }
+
+    public final void setAllowPlayerInventory(boolean allowPlayerInventory) {
+        this.allowPlayerInventory = allowPlayerInventory;
+    }
+
+    public final boolean isAllowButtonClick() {
+        return this.allowButtonClick;
+    }
+
+    public final boolean isAllowPlayerInventory() {
+        return this.allowPlayerInventory;
+    }
+
+    public Artist getViewer() {
+        return viewer;
+    }
+
+    public MenuStatus getStatus() {
+        return status;
+    }
+
+    public @NotNull Integer getLastPage() {
+        return lastPage;
+    }
+
     public final void drawPages() {
         this.pages = InventoryDrawer.create(this.buttons, this.title, this.size)
             .draw();
@@ -127,51 +156,6 @@ public class Menu extends CoreListener {
         return this.pages.get(page);
     }
 
-    public static @Nullable Menu getMenu(Inventory inventory) {
-        for (RegisteredMenu registeredMenu : getRegisteredMenuList())
-        {
-            Menu menu = registeredMenu.getMenuObject();
-
-            for (Map.Entry<Integer, Inventory> pageEntry : menu.getPages().entrySet())
-            {
-                Inventory pageInventory = pageEntry.getValue();
-
-                Map<Integer, ItemStack> itemsFromGivenInventory = new HashMap<>();
-                Map<Integer, ItemStack> itemsFromPageInventory = new HashMap<>();
-
-                for (int slot = 0; slot < inventory.getSize(); slot ++) {
-                    ItemStack item = inventory.getItem(slot);
-
-                    if (item != null)
-                        itemsFromGivenInventory.put(slot, item);
-                }
-
-                for (int slot = 0; slot < pageInventory.getSize(); slot ++) {
-                    ItemStack item = pageInventory.getItem(slot);
-
-                    if (item != null)
-                        itemsFromPageInventory.put(slot, item);
-                }
-
-                if (isItemsSimilarFromTwoInventories(itemsFromGivenInventory, itemsFromPageInventory))
-                    return registeredMenu.getMenuObject();
-            }
-        }
-
-        return null;
-    }
-
-    private static boolean isItemsSimilarFromTwoInventories(Map<Integer, ItemStack> firstInventory, Map<Integer, ItemStack> secondInventory) {
-        if (firstInventory.size() != secondInventory.size()) return false;
-
-        for (Map.Entry<Integer, ItemStack> firstInventoryItemSlot : firstInventory.entrySet())
-            if (secondInventory.get(firstInventoryItemSlot.getKey()) != null && firstInventoryItemSlot.getValue() != null)
-                if (!secondInventory.get(firstInventoryItemSlot.getKey()).isSimilar(firstInventoryItemSlot.getValue()))
-                    return false;
-
-        return true;
-    }
-
     public final void displayTo(Player player) {
         this.viewer = Artist.of(player);
         this.openMenu();
@@ -183,14 +167,24 @@ public class Menu extends CoreListener {
         if (this.getPages().isEmpty())
             this.drawPages();
 
-        this.viewer.openInventory(this.getInventory(getFirstPage()));
+        final Inventory inventory = this.getInventory(getFirstPage());
+
+        final Player player = this.getViewer().getPlayer();
+        final Menu menu = this;
+
+        this.viewer.openInventory(inventory);
+        this.status = MenuStatus.ACTIVE;
+
+        setPlayerMenu(this.getViewer().getPlayer(), menu);
     }
 
     protected final void updateMenu() {
-        if (!Validator.valid(this.viewer)) return;
-
         this.drawPages();
         this.update(this::openMenu);
+    }
+
+    public final void restartMenu() {
+        this.resetPages();
     }
 
     public final @NotNull Map<Integer, Inventory> getPages() {
@@ -201,10 +195,17 @@ public class Menu extends CoreListener {
         if (button.getPosition().getPage() > 100 || button.getPosition().getPage() < 1)
             throw new CoreException("Button page is higher than 100 or it's below 1, please set button page between 1-100.");
 
+        for (Button buttonStream : new ArrayList<>(this.buttons)) {
+            final Position position = buttonStream.getPosition();
+
+            if (position.getPage().equals(button.getPosition().getPage()) && position.getSlot().equals(button.getPosition().getSlot()))
+                this.buttons.remove(buttonStream);
+        }
+
         this.buttons.add(button);
     }
 
-    protected final @Nullable Button getButton(Position position) {
+    public final @Nullable Button getButton(Position position) {
         for (Button button : this.buttons)
             if (button.getPosition().getPage().equals(position.getPage()) && button.getPosition().getSlot().equals(position.getSlot()))
                 return button;
@@ -216,76 +217,52 @@ public class Menu extends CoreListener {
         return registeredMenuList;
     }
 
-    @EventHandler
-    public final void onInventoryClickEvent(final InventoryClickEvent event) {
-        final Player player = (Player) event.getWhoClicked();
-
-        if (!Validator.valid(this.viewer)) return;
-        if (!Validator.valid(this.viewer, player)) return;
-
-        event.setCancelled(true);
-
-        if (event.getCurrentItem() == null)
-            this.onEmptySlotClick(this.viewer, Position.of(this.getPage(), event.getSlot()));
-
-        final Button button = this.getButton(Position.of(event.getSlot(), this.getPage()));
-
-        if (button != null)
-            button.onButtonClick(this.viewer, button, this);
-    }
-
-    @EventHandler
-    public final void onInventoryOpenEvent(final InventoryOpenEvent event) {
-        final Player player = (Player) event.getPlayer();
-
-        if (!Validator.valid(this.viewer)) return;
-        if (!Validator.valid(this.viewer, player)) return;
-
-        this.onMenuOpen(this.viewer, this);
-    }
-
-    @EventHandler
-    public final void onInventoryCloseEvent(final InventoryCloseEvent event) {
-        final Player player = (Player) event.getPlayer();
-
-        if (!Validator.valid(this.viewer)) return;
-        if (!Validator.valid(this.viewer, player)) return;
-
-        if (this.isUpdating)
-            if (this.getPage().equals(this.lastPage))
-                this.onMenuPageChange(this.viewer, this, this.lastPage, this.getPage());
-            else this.onMenuUpdate(this.viewer, this);
-        else {
-            this.resetPages();
-            this.onMenuClose(this.viewer, this);
-        }
-    }
-
-    protected void onEmptySlotClick(final Artist artist, final Position position) {
+    public void onEmptySlotClick(final Artist artist, final Position position) {
 
     }
 
-    protected void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
+    public void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
 
     }
 
-    protected void onMenuUpdate(final Artist artist, final Menu menu) {
+    public void onMenuChange(final Artist artist, final Menu oldMenu, final Menu newMenu) {
 
     }
 
-    protected void onMenuOpen(final Artist artist, final Menu menu) {
+    public void onMenuUpdate(final Artist artist, final Menu menu) {
 
     }
 
-    protected void onMenuClose(final Artist artist, final Menu menu) {
+    public void onMenuOpen(final Artist artist, final Menu menu) {
 
     }
 
-    public final Menu getParentMenu() {
-        return this.parent;
+    public void onMenuClose(final Artist artist, final Menu menu) {
+
     }
 
     private void update(final Runnable task) {
-        this.isUpdating = true; task.run(); this.isUpdating = false;
+        final MenuStatus oldStatus = this.status;
+
+        this.status = MenuStatus.UPDATING; task.run(); this.status = oldStatus;
+    }
+
+    public static Menu getPlayerMenu(final @NotNull Player player) {
+        final List<MetadataValue> values = player.getMetadata(CoreConstants.NBT.TAG_MENU_CURRENT);
+
+        for (MetadataValue value : values)
+            if (value != null && value.value() != null)
+                if (value.value() instanceof Menu menu)
+                    return menu;
+
+        return null;
+    }
+
+    public static void setPlayerMenu(final @NotNull Player player, final @NotNull Menu menu) {
+        player.setMetadata(CoreConstants.NBT.TAG_MENU_CURRENT, new FixedMetadataValue(Core.getInstance(), menu));
+    }
+
+    public static void rejectPlayerMenu(final @NotNull Player player) {
+        player.setMetadata(CoreConstants.NBT.TAG_MENU_CURRENT, new FixedMetadataValue(Core.getInstance(), null));
     }
 }
