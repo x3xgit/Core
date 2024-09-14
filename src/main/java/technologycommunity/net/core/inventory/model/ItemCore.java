@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ItemCrafter {
-    private ItemCrafter(Material material) {
+public class ItemCore {
+    private ItemCore(Material material) {
         this.material = material;
     }
 
@@ -29,45 +29,45 @@ public class ItemCrafter {
     private boolean hideAttributes = true;
     private boolean enchanted = false;
 
-    public static ItemCrafter of(Material material) {
-        return new ItemCrafter(material);
+    public static ItemCore of(Material material) {
+        return new ItemCore(material);
     }
 
-    public final ItemCrafter setTitle(String title) {
+    public final ItemCore setTitle(String title) {
         this.title = title;
         return this;
     }
 
-    public final ItemCrafter setMaterial(Material material) {
+    public final ItemCore setMaterial(Material material) {
         this.material = material;
         return this;
     }
 
-    public ItemCrafter setLore(List<String> lore) {
+    public ItemCore setLore(List<String> lore) {
         this.lore = lore;
         return this;
     }
 
-    public ItemCrafter setLore(String[] lore) {
+    public ItemCore setLore(String[] lore) {
         return this.setLore(Arrays.stream(lore).toList());
     }
 
-    public ItemCrafter addLore(String... loreLines) {
+    public ItemCore addLore(String... loreLines) {
         this.lore.addAll(Arrays.stream(loreLines).toList());
         return this;
     }
 
-    public ItemCrafter setAmount(Integer amount) {
+    public ItemCore setAmount(Integer amount) {
         this.amount = amount;
         return this;
     }
 
-    public ItemCrafter setEnchanted(boolean bool) {
+    public ItemCore setEnchanted(boolean bool) {
         this.enchanted = true;
         return this;
     }
 
-    public final ItemCrafter hideAttributes(boolean bool) {
+    public final ItemCore hideAttributes(boolean bool) {
         this.hideAttributes = bool;
         return this;
     }

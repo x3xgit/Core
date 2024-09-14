@@ -4,10 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 @Deprecated
-public class SkullCrafter {
+public class SkullCore {
     final ItemStack item;
 
-    public SkullCrafter() {
+    public SkullCore() {
         this.item = new ItemStack(Material.PLAYER_HEAD);
     }
 

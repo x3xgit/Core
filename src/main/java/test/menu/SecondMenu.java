@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import technologycommunity.net.core.inventory.Menu;
 import technologycommunity.net.core.inventory.buttons.Button;
-import technologycommunity.net.core.inventory.model.ItemCrafter;
+import technologycommunity.net.core.inventory.model.ItemCore;
 import technologycommunity.net.core.inventory.structures.Position;
 import technologycommunity.net.core.structures.Artist;
 
@@ -29,7 +29,7 @@ public class SecondMenu extends Menu {
 
                     @Override
                     public @NotNull ItemStack getItem() {
-                        return ItemCrafter.of(Material.TNT).craft();
+                        return ItemCore.of(Material.TNT).craft();
                     }
                 }
         );
