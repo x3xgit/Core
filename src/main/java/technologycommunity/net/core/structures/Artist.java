@@ -5,7 +5,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import technologycommunity.net.core.color.Colorizer;
+import technologycommunity.net.core.color.Corelor;
 import technologycommunity.net.core.exception.CoreException;
 
 import java.util.UUID;
@@ -40,12 +40,12 @@ public class Artist {
     }
 
     public void tell(final String message) {
-        this.player.sendMessage(Colorizer.color(message));
+        this.player.sendMessage(Corelor.format(message));
     }
 
     public void tell(final String... messages) {
         for (String message : messages)
-            this.player.sendMessage(Colorizer.color(message));
+            this.player.sendMessage(Corelor.format(message));
     }
 
     public void playSound(final Sound sound) {

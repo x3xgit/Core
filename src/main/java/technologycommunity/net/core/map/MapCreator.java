@@ -2,15 +2,14 @@ package technologycommunity.net.core.map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapView;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
+
+import technologycommunity.net.core.constants.ExceptionConstants;
 import technologycommunity.net.core.exception.CoreException;
-import technologycommunity.net.core.plugin.Core;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -25,7 +24,7 @@ public class MapCreator {
 
     private MapCreator(String url) {
         if (Bukkit.getWorlds().isEmpty())
-            throw new CoreException("No worlds is created, can't create a map.");
+            throw new CoreException("Server worlds are empty. Couldn't create a map.");
 
         this.url = url;
 
@@ -76,7 +75,7 @@ public class MapCreator {
         MapMeta meta = (MapMeta) item.getItemMeta();
 
         if (meta == null)
-            throw new CoreException("Could not get MapMeta because it's null.");
+            throw new CoreException(ExceptionConstants.MESSAGE.META_IS_NULL);
 
         meta.setMapView(view);
         item.setItemMeta(meta);

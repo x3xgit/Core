@@ -7,8 +7,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import technologycommunity.net.core.inventory.Menu;
-import technologycommunity.net.core.inventory.listener.MenuListener;
+import technologycommunity.net.core.cooldown.Cooldown;
+import technologycommunity.net.core.menu.Menu;
+import technologycommunity.net.core.menu.Listener;
 import technologycommunity.net.core.plugin.structures.PluginStatus;
 import technologycommunity.net.core.logger.CoreLogger;
 
@@ -16,16 +17,17 @@ import java.io.File;
 import java.util.Objects;
 
 public class Core extends JavaPlugin {
-    static NamespacedKey key;
-    static Core instance;
-    PluginStatus status;
+    private static NamespacedKey key;
+    private static Core instance;
+    private PluginStatus status;
+    private static Class<? extends Core> parent;
 
     public static Core getInstance() {
         if (instance == null) {
             try {
                 instance = JavaPlugin.getPlugin(Core.class);
             } catch (final IllegalStateException ex) {
-                Bukkit.getLogger().severe("Failed to get instance of the plugin, you need to do a clean restart instead.");
+                Core.getInstance().getCoreLogger().error("Failed to get instance of the plugin, you need to do a clean restart instead.");
                 throw ex;
             }
 
@@ -69,8 +71,10 @@ public class Core extends JavaPlugin {
     protected final void initialize() {
         instance = this;
         key = new NamespacedKey(instance, "plugin");
+        parent = this.getClass();
 
-        new MenuListener().register();
+        new Listener().register();
+        Cooldown.startRunnable();
     }
 
     public final void savePluginResource(String resourcePath) {
@@ -120,10 +124,14 @@ public class Core extends JavaPlugin {
     }
 
     public static String getNamed() {
-        return "Core";
+        return Core.getInstance().getDescription().getName();
     }
 
     public final CoreLogger getCoreLogger(){
         return CoreLogger.getCoreLogger();
+    }
+
+    public static Class<? extends Core> getParent() {
+        return parent;
     }
 }

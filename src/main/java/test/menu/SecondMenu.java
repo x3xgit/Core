@@ -4,10 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import technologycommunity.net.core.inventory.Menu;
-import technologycommunity.net.core.inventory.buttons.Button;
-import technologycommunity.net.core.inventory.model.ItemCore;
-import technologycommunity.net.core.inventory.structures.Position;
+import technologycommunity.net.core.menu.Menu;
+import technologycommunity.net.core.menu.Button;
+import technologycommunity.net.core.menu.model.ItemCore;
+import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.structures.Artist;
 
 public class SecondMenu extends Menu {
@@ -23,13 +23,13 @@ public class SecondMenu extends Menu {
                     }
 
                     @Override
-                    public @NotNull Position getPosition() {
-                        return Position.of(13, 1);
+                    public @NotNull ButtonPosition getPosition() {
+                        return ButtonPosition.of(13, 1);
                     }
 
                     @Override
                     public @NotNull ItemStack getItem() {
-                        return ItemCore.of(Material.TNT).craft();
+                        return ItemCore.of(Material.TNT).create();
                     }
                 }
         );

@@ -1,6 +1,6 @@
-package technologycommunity.net.core.inventory.structures;
+package technologycommunity.net.core.menu.structures;
 
-import technologycommunity.net.core.inventory.Menu;
+import technologycommunity.net.core.menu.Menu;
 
 public class RegisteredMenu {
     private final Class<? extends Menu> menuClass;

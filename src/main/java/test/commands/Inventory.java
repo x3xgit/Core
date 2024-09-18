@@ -1,10 +1,10 @@
 package test.commands;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import technologycommunity.net.core.command.CoreCommand;
-import technologycommunity.net.core.inventory.Menu;
+import technologycommunity.net.core.menu.Menu;
 
 import test.menu.ExampleMenu;
 
@@ -14,10 +14,9 @@ public class Inventory extends CoreCommand {
     }
 
     @Override
-    protected void onCommandExecute(final CommandSender sender, final String label, final String[] arguments) {
-        if (!(sender instanceof Player player))
-            return;
+    protected boolean onCommand(@NotNull Player executor, @NotNull String label, @NotNull String[] arguments) {
+        final Menu menu = new ExampleMenu(executor);
 
-        final Menu menu = new ExampleMenu(player);
+        return true;
     }
 }

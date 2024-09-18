@@ -1,4 +1,4 @@
-package technologycommunity.net.core.inventory.listener;
+package technologycommunity.net.core.menu;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,13 +7,11 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import technologycommunity.net.core.inventory.Menu;
-import technologycommunity.net.core.inventory.buttons.Button;
-import technologycommunity.net.core.inventory.structures.MenuStatus;
-import technologycommunity.net.core.inventory.structures.Position;
+import technologycommunity.net.core.menu.structures.MenuStatus;
+import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.listener.internal.CoreListener;
 
-public class MenuListener extends CoreListener {
+public class Listener extends CoreListener {
     @EventHandler
     public final void onMenuClick(final InventoryClickEvent event) {
         final Player player = (Player) event.getWhoClicked();
@@ -36,9 +34,9 @@ public class MenuListener extends CoreListener {
         event.setCancelled(true);
 
         if (event.getCurrentItem() == null)
-            menu.onEmptySlotClick(menu.getViewer(), Position.of(page, slot));
+            menu.onEmptySlotClick(menu.getViewer(), ButtonPosition.of(page, slot));
 
-        final Button button = menu.getButton(Position.of(slot, page));
+        final Button button = menu.getButton(ButtonPosition.of(slot, page));
 
         if (button != null)
             button.onButtonClick(menu.getViewer(), menu);

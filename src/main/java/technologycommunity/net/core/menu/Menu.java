@@ -1,4 +1,4 @@
-package technologycommunity.net.core.inventory;
+package technologycommunity.net.core.menu;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -10,11 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.Validator;
 import technologycommunity.net.core.constants.CoreConstants;
-import technologycommunity.net.core.inventory.structures.MenuStatus;
+import technologycommunity.net.core.menu.structures.MenuStatus;
 import technologycommunity.net.core.exception.CoreException;
-import technologycommunity.net.core.inventory.buttons.Button;
-import technologycommunity.net.core.inventory.structures.Position;
-import technologycommunity.net.core.inventory.structures.RegisteredMenu;
+import technologycommunity.net.core.menu.structures.ButtonPosition;
+import technologycommunity.net.core.menu.structures.RegisteredMenu;
 import technologycommunity.net.core.plugin.Core;
 import technologycommunity.net.core.structures.Artist;
 
@@ -110,36 +109,36 @@ public class Menu {
         return false;
     }
 
-    public final void setAllowButtonClick(final boolean allowButtonClick) {
+    protected final void setAllowButtonClick(final boolean allowButtonClick) {
         this.allowButtonClick = allowButtonClick;
     }
 
-    public final void setAllowPlayerInventory(final boolean allowPlayerInventory) {
+    protected final void setAllowPlayerInventory(final boolean allowPlayerInventory) {
         this.allowPlayerInventory = allowPlayerInventory;
     }
 
-    public final boolean isAllowButtonClick() {
+    protected final boolean isAllowButtonClick() {
         return this.allowButtonClick;
     }
 
-    public final boolean isAllowPlayerInventory() {
+    protected final boolean isAllowPlayerInventory() {
         return this.allowPlayerInventory;
     }
 
-    public Artist getViewer() {
+    public final Artist getViewer() {
         return viewer;
     }
 
-    public MenuStatus getStatus() {
+    public final MenuStatus getStatus() {
         return status;
     }
 
-    public @NotNull Integer getLastPage() {
+    public final @NotNull Integer getLastPage() {
         return lastPage;
     }
 
     public final void drawPages() {
-        this.pages = InventoryDrawer.create(this.buttons, this.title, this.size)
+        this.pages = Drawer.create(this.buttons, this.title, this.size)
             .draw();
     }
 
@@ -162,7 +161,8 @@ public class Menu {
     }
 
     protected final void openMenu() {
-        if (!Validator.valid(this.viewer)) return;
+        if (!Validator.valid(this.viewer))
+            return;
 
         if (this.getPages().isEmpty())
             this.drawPages();
@@ -183,7 +183,7 @@ public class Menu {
         this.update(this::openMenu);
     }
 
-    public final void restartMenu() {
+    protected final void restartMenu() {
         this.resetPages();
     }
 
@@ -196,7 +196,7 @@ public class Menu {
             throw new CoreException("Button page is higher than 100 or it's below 1, please set button page between 1-100.");
 
         for (Button buttonStream : new ArrayList<>(this.buttons)) {
-            final Position position = buttonStream.getPosition();
+            final ButtonPosition position = buttonStream.getPosition();
 
             if (position.getPage().equals(button.getPosition().getPage()) && position.getSlot().equals(button.getPosition().getSlot()))
                 this.buttons.remove(buttonStream);
@@ -205,7 +205,7 @@ public class Menu {
         this.buttons.add(button);
     }
 
-    public final @Nullable Button getButton(final Position position) {
+    protected final @Nullable Button getButton(final ButtonPosition position) {
         for (Button button : this.buttons)
             if (button.getPosition().getPage().equals(position.getPage()) && button.getPosition().getSlot().equals(position.getSlot()))
                 return button;
@@ -217,27 +217,27 @@ public class Menu {
         return registeredMenuList;
     }
 
-    public void onEmptySlotClick(final Artist artist, final Position position) {
+    protected void onEmptySlotClick(final Artist artist, final ButtonPosition position) {
 
     }
 
-    public void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
+    protected void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
 
     }
 
-    public void onMenuChange(final Artist artist, final Menu oldMenu, final Menu newMenu) {
+    protected void onMenuChange(final Artist artist, final Menu oldMenu, final Menu newMenu) {
 
     }
 
-    public void onMenuUpdate(final Artist artist, final Menu menu) {
+    protected void onMenuUpdate(final Artist artist, final Menu menu) {
 
     }
 
-    public void onMenuOpen(final Artist artist, final Menu menu) {
+    protected void onMenuOpen(final Artist artist, final Menu menu) {
 
     }
 
-    public void onMenuClose(final Artist artist, final Menu menu) {
+    protected void onMenuClose(final Artist artist, final Menu menu) {
 
     }
 

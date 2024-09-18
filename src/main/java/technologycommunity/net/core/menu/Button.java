@@ -1,16 +1,15 @@
-package technologycommunity.net.core.inventory.buttons;
+package technologycommunity.net.core.menu;
 
 import org.bukkit.inventory.ItemStack;
 
 import org.jetbrains.annotations.NotNull;
 
-import technologycommunity.net.core.inventory.Menu;
-import technologycommunity.net.core.inventory.structures.Position;
+import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.structures.Artist;
 
 public abstract class Button {
     private final ItemStack icon;
-    private final Position position;
+    private final ButtonPosition position;
 
     public Button() {
         this.icon = this.getItem();
@@ -18,6 +17,6 @@ public abstract class Button {
     }
 
     public abstract void onButtonClick(final Artist clicker, final Menu menu);
-    public abstract @NotNull Position getPosition();
+    public abstract @NotNull ButtonPosition getPosition();
     public abstract @NotNull ItemStack getItem();
 }

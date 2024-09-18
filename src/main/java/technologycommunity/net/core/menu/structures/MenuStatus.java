@@ -1,4 +1,4 @@
-package technologycommunity.net.core.inventory.structures;
+package technologycommunity.net.core.menu.structures;
 
 public enum MenuStatus {
     UPDATING,

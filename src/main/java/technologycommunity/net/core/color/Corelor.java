@@ -1,5 +1,6 @@
 package technologycommunity.net.core.color;
 
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 public enum Corelor {
@@ -35,6 +36,10 @@ public enum Corelor {
 
     public char getColorCode() {
         return colorCode;
+    }
+
+    public static String format(final @NotNull String textToFormat) {
+        return ChatColor.translateAlternateColorCodes('&', textToFormat);
     }
 
     @Override

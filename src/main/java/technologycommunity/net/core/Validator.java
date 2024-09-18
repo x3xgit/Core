@@ -4,9 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import org.bukkit.inventory.ItemStack;
-import technologycommunity.net.core.exception.CoreException;
-import technologycommunity.net.core.inventory.Menu;
-import technologycommunity.net.core.inventory.structures.RegisteredMenu;
+import technologycommunity.net.core.menu.Menu;
+import technologycommunity.net.core.menu.structures.RegisteredMenu;
 import technologycommunity.net.core.structures.Artist;
 
 import java.util.HashMap;
