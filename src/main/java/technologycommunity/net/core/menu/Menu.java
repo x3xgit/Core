@@ -1,8 +1,10 @@
 package technologycommunity.net.core.menu;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.Validator;
 import technologycommunity.net.core.constants.CoreConstants;
-import technologycommunity.net.core.menu.structures.MenuStatus;
+import technologycommunity.net.core.menu.model.ItemCore;
+import technologycommunity.net.core.menu.model.meta.SkullModifier;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.menu.structures.RegisteredMenu;
@@ -19,7 +22,7 @@ import technologycommunity.net.core.structures.Artist;
 
 import java.util.*;
 
-public class Menu {
+public abstract class Menu {
     private static final List<RegisteredMenu> registeredMenuList = new ArrayList<>();
 
     private final List<Button> buttons = new ArrayList<>();
@@ -27,19 +30,18 @@ public class Menu {
 
     private @NotNull String title;
     private @NotNull Integer size;
-    private @NotNull Integer page = 1;
-    private @NotNull Integer lastPage = 1;
-    private Artist viewer = null;
+    private @NotNull Integer page = this.getFirstPage();
+    private @NotNull Integer lastPage = this.getFirstPage();
+    private @Nullable Artist viewer = null;
 
-    private MenuStatus status;
+    private boolean updating;
 
-    private boolean allowButtonClick = false;
     private boolean allowPlayerInventory = true;
+
+    private boolean isPageButtonsAdded = false;
 
     // Constructor
     protected Menu() {
-        this.status = MenuStatus.NOT_ACTIVE;
-
         this.title = "&8Menu ({current_page}/{maximum_page})";
         this.size = 5;
 
@@ -51,40 +53,48 @@ public class Menu {
         this.title = title;
     }
 
-    protected final void setSize(final @NotNull Integer size) {
+    protected final void setSize(final int size) {
         this.size = size;
     }
 
-    private void setPage(final @NotNull Integer page) {
+    private void setPage(final int page) {
         this.lastPage = this.page;
         this.page = page;
     }
 
-    public final @NotNull Integer getPage() {
+    protected final int getPage() {
         return page;
     }
 
-    public final @NotNull Integer getMaxPage() {
-        if (pages.isEmpty() && !this.buttons.isEmpty())
-            this.drawPages();
-
-        return pages.size();
+    private int getMaxPageFromButtons() {
+        return this.buttons.stream()
+                .map(b -> b.getPosition().getPage())
+                .max(Integer::compare)
+            .orElse(this.getFirstPage());
     }
 
-    private void resetPages() {
-        this.setPage(getFirstPage());
+    protected final @NotNull Map<Integer, Inventory> getPages() {
+        return this.pages;
     }
 
-    public final Integer getFirstPage() {
+    public final int getFirstPage() {
         return 1;
     }
 
-    protected final boolean canGo(final Integer page) {
-        return page < this.pages.size();
+    protected final boolean canGo(final int to) {
+        return to < this.getMaxPageFromButtons();
     }
 
-    protected final boolean canBack(final Integer page) {
-        return page > 1;
+    protected final boolean canBack(final int to) {
+        return to > this.getFirstPage();
+    }
+
+    protected final boolean canGo(final int to, final int pages) {
+        return to < pages;
+    }
+
+    protected final boolean canBack(final int to, final int pages) {
+        return to > this.getFirstPage();
     }
 
     protected final boolean nextPage() {
@@ -109,73 +119,107 @@ public class Menu {
         return false;
     }
 
-    protected final void setAllowButtonClick(final boolean allowButtonClick) {
-        this.allowButtonClick = allowButtonClick;
+    private int getFreestButtonSlotFromEnd(final @NotNull Inventory inventory) {
+        for (int slot = inventory.getSize() - 1; slot >= 0; slot --) {
+            final ItemStack item = inventory.getItem(slot);
+
+            if (item == null || item.getType().isAir())
+                return slot;
+        }
+
+        return -1;
+    }
+
+    private int getFreestButtonSlotFromStart(final @NotNull Inventory inventory) {
+        for (int slot = 0; slot < inventory.getSize(); slot ++) {
+            final ItemStack item = inventory.getItem(slot);
+
+            if (item == null || item.getType().isAir())
+                return slot;
+        }
+
+        return -1;
+    }
+
+    protected boolean isSlotFree(int page, int slot) {
+        final Inventory pageInventory = this.pages.get(page);
+
+        if (pageInventory == null)
+            return false;
+
+        final ItemStack item = pageInventory.getItem(slot);
+
+        return item == null || item.getType().isAir();
     }
 
     protected final void setAllowPlayerInventory(final boolean allowPlayerInventory) {
         this.allowPlayerInventory = allowPlayerInventory;
     }
 
-    protected final boolean isAllowButtonClick() {
-        return this.allowButtonClick;
-    }
-
     protected final boolean isAllowPlayerInventory() {
         return this.allowPlayerInventory;
     }
 
-    public final Artist getViewer() {
+    protected final @Nullable Artist getViewer() {
         return viewer;
     }
 
-    public final MenuStatus getStatus() {
-        return status;
+    protected final boolean isUpdating() {
+        return updating;
     }
 
-    public final @NotNull Integer getLastPage() {
+    protected final int getLastPage() {
         return lastPage;
     }
 
-    public final void drawPages() {
-        this.pages = Drawer.create(this.buttons, this.title, this.size)
+    private void drawPages() {
+        if (this.shouldAddPageButtons())
+            this.addPageButtons();
+
+        this.pages = Drawer.from(this.buttons, this.title, this.size)
             .draw();
     }
 
-    public final @NotNull Inventory getInventory(final Integer page) {
+    private @NotNull Inventory getInventory(final int page) {
         if (this.pages.isEmpty())
             this.drawPages();
+
+        final Inventory pageInv = this.pages.get(page);
 
         if (this.pages.isEmpty())
             throw new CoreException("Can't draw pages because they are empty.");
 
-        if (this.pages.get(page) == null)
+        if (pageInv == null)
             throw new CoreException("Can't return page because it's not found.");
 
-        return this.pages.get(page);
+        return pageInv;
     }
 
-    public final void displayTo(final @NotNull Player player) {
-        this.viewer = Artist.of(player);
-        this.openMenu();
-    }
-
-    protected final void openMenu() {
-        if (!Validator.valid(this.viewer))
+    private void openMenu() {
+        if (!Validator.checkNotNull(this.viewer))
             return;
 
-        if (this.getPages().isEmpty())
-            this.drawPages();
-
-        final Inventory inventory = this.getInventory(getFirstPage());
+        final Inventory inventory = this.getInventory(getPage());
 
         final Player player = this.getViewer().getPlayer();
-        final Menu menu = this;
+        final Artist artist = Artist.of(player);
+
+        final Menu currentMenu = this;
+        final Menu lastMenu = getPlayerMenu(player);
 
         this.viewer.openInventory(inventory);
-        this.status = MenuStatus.ACTIVE;
+        Menu.setPlayerMenu(this.getViewer().getPlayer(), currentMenu);
 
-        setPlayerMenu(this.getViewer().getPlayer(), menu);
+        if (lastMenu != null)
+            this.onMenuChange(this.viewer, lastMenu, currentMenu);
+
+        this.onMenuOpen(artist, currentMenu);
+    }
+
+    private void update(final Runnable task) {
+        this.updating = true;
+        task.run();
+        this.updating = false;
     }
 
     protected final void updateMenu() {
@@ -184,11 +228,12 @@ public class Menu {
     }
 
     protected final void restartMenu() {
-        this.resetPages();
+        this.setPage(getFirstPage());
     }
 
-    public final @NotNull Map<Integer, Inventory> getPages() {
-        return this.pages;
+    public final void displayTo(final @NotNull Player player) {
+        this.viewer = Artist.of(player);
+        this.openMenu();
     }
 
     protected final void registerButton(final Button button) {
@@ -217,34 +262,32 @@ public class Menu {
         return registeredMenuList;
     }
 
-    protected void onEmptySlotClick(final Artist artist, final ButtonPosition position) {
+    protected void onEmptySlotClick(final @NotNull Artist artist, final @NotNull ButtonPosition position) {
 
     }
 
-    protected void onMenuPageChange(final Artist artist, final Menu menu, final Integer oldPage, final Integer newPage) {
+    protected void onMenuPageChange(final @NotNull Artist artist, final @NotNull Menu menu, final int oldPage, final int newPage) {
 
     }
 
-    protected void onMenuChange(final Artist artist, final Menu oldMenu, final Menu newMenu) {
+    protected void onMenuChange(final @NotNull Artist artist, final @NotNull Menu oldMenu, final @NotNull Menu newMenu) {
 
     }
 
-    protected void onMenuUpdate(final Artist artist, final Menu menu) {
+    protected void onMenuUpdate(final @NotNull Artist artist, final @NotNull Menu menu) {
 
     }
 
-    protected void onMenuOpen(final Artist artist, final Menu menu) {
+    protected void onMenuOpen(final @NotNull Artist artist, final @NotNull Menu menu) {
 
     }
 
-    protected void onMenuClose(final Artist artist, final Menu menu) {
+    protected void onMenuClose(final @NotNull Artist artist, final @NotNull Menu menu) {
 
     }
 
-    private void update(final Runnable task) {
-        final MenuStatus oldStatus = this.status;
-
-        this.status = MenuStatus.UPDATING; task.run(); this.status = oldStatus;
+    protected boolean shouldAddPageButtons() {
+        return false;
     }
 
     public static Menu getPlayerMenu(final @NotNull Player player) {
@@ -264,5 +307,65 @@ public class Menu {
 
     public static void rejectPlayerMenu(final @NotNull Player player) {
         player.setMetadata(CoreConstants.NBT.TAG_MENU_CURRENT, new FixedMetadataValue(Core.getInstance(), null));
+    }
+
+    private void addPageButtons() {
+        for (int page = 1; page <= this.getMaxPageFromButtons(); page++) {
+            final int currentPage = page;
+
+            this.buttons.add(
+                    new Button() {
+                        @Override
+                        public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
+                            boolean nextPage = nextPage();
+
+                            if (nextPage)
+                                clicker.tell("&aSuccessfully changed page to: " + getPage() + ".");
+                            else clicker.tell("&cCouldn't change page.");
+                        }
+
+                        @Override
+                        public @NotNull ButtonPosition getPosition() {
+                            return ButtonPosition.of(size * 9 - 4, currentPage);
+                        }
+
+                        @Override
+                        public @NotNull ItemStack getItem() {
+                            return ItemCore.of(Material.PLAYER_HEAD)
+                                    .name((canGo(currentPage) ? "&a" : "&c") + "Next")
+                                    .skull(SkullModifier.BASE64, CoreConstants.SKULLS.skullNextArrowAction)
+                                .create();
+                        }
+                    }
+            );
+
+            this.buttons.add(
+                    new Button() {
+                        @Override
+                        public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
+                            boolean previousPage = previousPage();
+
+                            if (previousPage)
+                                clicker.tell("&aSuccessfully changed page to: " + getPage() + ".");
+                            else clicker.tell("&cCouldn't change page.");
+                        }
+
+                        @Override
+                        public @NotNull ButtonPosition getPosition() {
+                            return ButtonPosition.of(size * 9 - 6, currentPage);
+                        }
+
+                        @Override
+                        public @NotNull ItemStack getItem() {
+                            return ItemCore.of(Material.PLAYER_HEAD)
+                                    .name((canBack(currentPage) ? "&a" : "&c") + "Previous")
+                                    .skull(SkullModifier.BASE64, CoreConstants.SKULLS.skullPreviousArrowAction)
+                                    .create();
+                        }
+                    }
+            );
+        }
+
+        this.isPageButtonsAdded = true;
     }
 }

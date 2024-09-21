@@ -10,9 +10,12 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import technologycommunity.net.core.color.Corelor;
+import technologycommunity.net.core.constants.CoreConstants;
 import technologycommunity.net.core.menu.model.SkullCore;
+import technologycommunity.net.core.menu.model.data.DataTypeCreator;
 import technologycommunity.net.core.plugin.Core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +23,6 @@ import java.util.List;
 public class CoreMetaModifier {
     private final ItemStack item;
     private final ItemMeta meta;
-
-    private final Corelor defaultColor = Corelor.GRAY;
 
     private CoreMetaModifier(ItemStack item) {
         this.item = item;
@@ -33,7 +34,7 @@ public class CoreMetaModifier {
     }
 
     public CoreMetaModifier setName(final @NotNull String title) {
-        this.meta.setDisplayName(this.defaultColor + Corelor.format(title));
+        this.meta.setDisplayName(CoreConstants.COLORS.defaultColor + Corelor.format(title));
         return this;
     }
 
@@ -89,11 +90,6 @@ public class CoreMetaModifier {
         return this;
     }
 
-    public CoreMetaModifier setPersistentDataValue(PersistentDataType<Object, Object> type, Object information) {
-        this.meta.getPersistentDataContainer().set(new NamespacedKey(Core.getInstance(), Core.getNamed()), type, information);
-        return this;
-    }
-
     public CoreMetaModifier setEnchantmentEffect(final boolean is) {
         if (is)
             this.meta.addEnchant(Enchantment.KNOCKBACK, 1, false);
@@ -104,11 +100,17 @@ public class CoreMetaModifier {
         return this;
     }
 
+    public <T extends Serializable> CoreMetaModifier setData(final @NotNull DataTypeCreator<T> type, final @NotNull T object) {
+        this.meta.getPersistentDataContainer().set(Core.getKey(), type.get(), object);
+
+        return this;
+    }
+
     public ItemMeta configure() {
         return this.meta;
     }
 
     private String configure(final @NotNull String text) {
-        return this.defaultColor + Corelor.format(text);
+        return CoreConstants.COLORS.defaultColor + Corelor.format(text);
     }
 }

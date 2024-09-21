@@ -19,7 +19,6 @@ import java.util.UUID;
 public abstract class CoreCommand extends Command {
     private final @NotNull UUID uuid;
     private final @NotNull String label;
-    private final @NotNull Double cooldown;
 
     protected static class Messages {
         public static @NotNull String playerOnly = "&cThis command is allowed only for players.";
@@ -30,7 +29,6 @@ public abstract class CoreCommand extends Command {
 
         this.uuid = UUID.randomUUID();
         this.label = label;
-        this.cooldown = this.getCooldown();
 
         this.setPermission(Core.getInstance().getClass().getSimpleName() + ".commands." + label);
         this.setPermissionMessage(Corelor.format("&cYou don't have a permission to use this command."));
@@ -83,19 +81,17 @@ public abstract class CoreCommand extends Command {
             }
         }
 
-        PluginCommand command = Bukkit.getServer().getPluginCommand(this.label);
-        player.sendMessage("Is command '" + this.label + "' is plugin command: " + (command == null ? "no" : "yes"));
-
         final double cooldown = Cooldown.get(new Data(player.getUniqueId(), this.uuid));
+        final double commandCooldown = this.getCooldown(player, arguments);
 
-        if (this.cooldown > 0) {
+        if (commandCooldown > 0) {
             if (cooldown > 0) {
                 sender.sendMessage(Corelor.format(this.getCooldownMessage(cooldown)));
             } else {
                 final boolean shouldCooldown = this.onCommand(player, label, arguments);
 
                 if (shouldCooldown)
-                    Cooldown.create(new Data(player.getUniqueId(), this.uuid), this.cooldown);
+                    Cooldown.create(new Data(player.getUniqueId(), this.uuid), commandCooldown);
             }
 
             return true;
@@ -106,7 +102,7 @@ public abstract class CoreCommand extends Command {
         return true;
     }
 
-    protected double getCooldown() {
+    protected double getCooldown(final @NotNull Player player, final @NotNull String[] arguments) {
         return 0;
     }
 

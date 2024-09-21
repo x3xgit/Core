@@ -20,7 +20,7 @@ public class Drawer {
         this.size = size;
     }
 
-    protected static Drawer create(List<Button> buttons, String title, Integer size) {
+    protected static Drawer from(List<Button> buttons, String title, Integer size) {
         return new Drawer(buttons, title, size);
     }
 
@@ -44,12 +44,12 @@ public class Drawer {
 
         for (int page = 1; page <= maxPage; page ++)
         {
-            String pageTitle = Corelor.format(
+            final String pageTitle = Corelor.format(
                     this.title
                             .replace("{current_page}", String.valueOf(page))
                             .replace("{maximum_page}", String.valueOf(maxPage)));
 
-            Inventory newPage = Bukkit.createInventory(null,
+            final Inventory newPage = Bukkit.createInventory(null,
                     this.size * 9,
                     pageTitle);
 
@@ -58,7 +58,7 @@ public class Drawer {
 
         for (Map.Entry<Integer, Inventory> pageEntry : pages.entrySet())
         {
-            for (Button button : this.buttons)
+            for (final Button button : this.buttons)
                 if (button.getPosition().getPage().equals(pageEntry.getKey()))
                     pageEntry.getValue().setItem(button.getPosition().getSlot(), button.getItem());
         }

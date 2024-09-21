@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import technologycommunity.net.core.color.Corelor;
+import technologycommunity.net.core.constants.CoreConstants;
 import technologycommunity.net.core.exception.CoreException;
 
 import java.util.UUID;
@@ -40,12 +41,12 @@ public class Artist {
     }
 
     public void tell(final String message) {
-        this.player.sendMessage(Corelor.format(message));
+        this.player.sendMessage(CoreConstants.COLORS.defaultColor + Corelor.format(message));
     }
 
     public void tell(final String... messages) {
         for (String message : messages)
-            this.player.sendMessage(Corelor.format(message));
+            this.tell(message);
     }
 
     public void playSound(final Sound sound) {
@@ -67,7 +68,7 @@ public class Artist {
     }
 
     public boolean isAlive() {
-        return this.player.getHealth() > 0;
+        return !this.isDead();
     }
 
     public boolean isDead() {

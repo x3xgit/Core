@@ -31,7 +31,7 @@ public class GetMap extends CoreCommand {
     }
 
     @Override
-    protected double getCooldown() {
+    protected double getCooldown(@NotNull Player player, @NotNull String[] arguments) {
         return 7;
     }
 }

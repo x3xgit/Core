@@ -17,9 +17,29 @@ public class SecondMenu extends Menu {
         this.registerButton(
                 new Button() {
                     @Override
-                    public void onButtonClick(final Artist clicker, final Menu menu) {
+                    public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
                         clicker.tell("&aThis is SecondMenu, I'm closing it...");
                         //clicker.closeInventory();
+                    }
+
+                    @Override
+                    public @NotNull ButtonPosition getPosition() {
+                        return ButtonPosition.of(13, 1);
+                    }
+
+                    @Override
+                    public @NotNull ItemStack getItem() {
+                        return ItemCore.of(Material.TNT).create();
+                    }
+                }
+        );
+
+        this.registerButton(
+                new Button() {
+                    @Override
+                    public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
+                        clicker.tell("&aThis is SecondMenu, I'm closing it...");
+                        clicker.closeInventory();
                     }
 
                     @Override
@@ -36,7 +56,7 @@ public class SecondMenu extends Menu {
     }
 
     @Override
-    public void onMenuOpen(final Artist artist, final Menu menu) {
+    public void onMenuOpen(final @NotNull Artist artist, final @NotNull Menu menu) {
         artist.tell("&7SecondMenu menu is opened.");
     }
 }

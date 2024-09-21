@@ -7,9 +7,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import technologycommunity.net.core.color.Corelor;
+import technologycommunity.net.core.menu.model.data.DataTypeCreator;
 import technologycommunity.net.core.menu.model.meta.CoreMetaModifier;
 import technologycommunity.net.core.menu.model.meta.SkullModifier;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class ItemCore {
@@ -85,7 +87,7 @@ public class ItemCore {
     public ItemCore removeItemFlags(final @NotNull ItemFlag... itemFlags) {
         this.item.setItemMeta(CoreMetaModifier.get(this.item)
                 .removeItemFlags(itemFlags)
-                .configure());
+            .configure());
 
         return this;
     }
@@ -93,12 +95,27 @@ public class ItemCore {
     public ItemCore skull(final @NotNull SkullModifier modifier, final @NotNull String string) {
         this.item.setItemMeta(CoreMetaModifier.get(this.item)
                 .setSkullTexture(modifier, string)
-                .configure());
+            .configure());
+
+        return this;
+    }
+
+    public <T extends Serializable> ItemCore data(final @NotNull DataTypeCreator<T> type, final @NotNull T object) {
+        this.item.setItemMeta(CoreMetaModifier.get(this.item)
+                .setData(type, object)
+            .configure());
 
         return this;
     }
 
     public final ItemStack create() {
+        final ItemMeta meta = this.item.getItemMeta();
+
+        if (meta != null && !meta.hasDisplayName())
+            this.item.setItemMeta(CoreMetaModifier.get(this.item)
+                    .setName(this.item.getType().getTranslationKey())
+                .configure());
+
         return this.item;
     }
 

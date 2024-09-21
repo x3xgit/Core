@@ -16,7 +16,7 @@ public abstract class Button {
         this.position = this.getPosition();
     }
 
-    public abstract void onButtonClick(final Artist clicker, final Menu menu);
+    public abstract void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu);
     public abstract @NotNull ButtonPosition getPosition();
     public abstract @NotNull ItemStack getItem();
 }

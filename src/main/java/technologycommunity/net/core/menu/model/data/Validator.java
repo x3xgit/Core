@@ -1,31 +1,28 @@
-package technologycommunity.net.core.menu.model.meta;
+package technologycommunity.net.core.menu.model.data;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.constants.ExceptionConstants;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.plugin.Core;
 
-public class Verifier {
+import java.io.Serializable;
+
+public class Validator {
     private final ItemStack item;
 
-    public Verifier(final @NotNull ItemStack item) {
+    public Validator(final @NotNull ItemStack item) {
         this.item = item;
     }
 
-    public boolean equals(final @NotNull String value) {
+    public <T extends Serializable> @Nullable T get(final @NotNull DataTypeCreator<T> type) {
         final PersistentDataContainer container = this.getContainer();
 
-        final String containerValue = container.get(Core.getKey(), PersistentDataType.STRING);
-
-        if (containerValue == null)
-            throw new CoreException("Tried to check if container has API key and received container value but it's null.");
-
-        return (containerValue.equals(value));
+        return container.get(Core.getKey(), type.get());
     }
 
     private @NotNull PersistentDataContainer getContainer() {

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import technologycommunity.net.core.constants.CoreConstants;
 import technologycommunity.net.core.menu.Menu;
 import technologycommunity.net.core.menu.Button;
 import technologycommunity.net.core.menu.model.ItemCore;
@@ -20,7 +21,7 @@ public class ExampleMenu extends Menu {
         this.registerButton(
                 new Button() {
                     @Override
-                    public void onButtonClick(final Artist clicker, final Menu menu) {
+                    public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
                         clicker.tell("&aThis is ExampleMenu, displaying to SecondMenu()...");
                         new SecondMenu().displayTo(clicker.getPlayer());
                     }
@@ -40,11 +41,48 @@ public class ExampleMenu extends Menu {
                 }
         );
 
+        this.registerButton(
+                new Button() {
+                    @Override
+                    public void onButtonClick(final @NotNull Artist clicker, final @NotNull Menu menu) {
+                        clicker.tell("&dNa.");
+                    }
+
+                    @Override
+                    public @NotNull ButtonPosition getPosition() {
+                        return ButtonPosition.of(13, 5);
+                    }
+
+                    @Override
+                    public @NotNull ItemStack getItem() {
+                        return ItemCore.of(Material.PLAYER_HEAD)
+                                .name("&ekek")
+                                .skull(SkullModifier.URL, CoreConstants.SKULLS.skullNextArrowAction)
+                                .create();
+                    }
+                }
+        );
+
         this.displayTo(player);
     }
 
     @Override
-    public void onMenuOpen(Artist artist, Menu menu) {
-        artist.tell("&7ExampleMenu menu is opened.");
+    public void onMenuOpen(@NotNull Artist artist, @NotNull Menu menu) {
+        artist.tell("Menu is opened.");
+    }
+
+    @Override
+    protected void onMenuClose(@NotNull Artist artist, @NotNull Menu menu) {
+        artist.tell("Menu just closed");
+    }
+
+    @Override
+    protected void onMenuChange(@NotNull Artist artist, @NotNull Menu oldMenu, @NotNull Menu newMenu) {
+        artist.tell("Menu is changed.");
+    }
+
+    @Override
+    protected boolean shouldAddPageButtons() {
+        return true;
     }
 }

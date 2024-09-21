@@ -4,12 +4,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
-import technologycommunity.net.core.menu.structures.MenuStatus;
 import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.listener.internal.CoreListener;
+import technologycommunity.net.core.structures.Artist;
 
 public class Listener extends CoreListener {
     @EventHandler
@@ -17,40 +16,25 @@ public class Listener extends CoreListener {
         final Player player = (Player) event.getWhoClicked();
         final Menu menu = Menu.getPlayerMenu(player);
 
-        if (event.getClickedInventory() == null)
+        if (menu == null ||
+                event.getClickedInventory() == null ||
+                    event.getClickedInventory().getType().equals(InventoryType.PLAYER) && menu.isAllowPlayerInventory())
             return;
-
-        if (menu == null)
-            return;
-
-        if (event.getClickedInventory().getType().equals(InventoryType.PLAYER) && menu.isAllowPlayerInventory())
-            return;
-
-        // Checks are finished
 
         final Integer page = menu.getPage();
         final Integer slot = event.getSlot();
 
+        final Artist artist = Artist.of(player);
+
         event.setCancelled(true);
 
         if (event.getCurrentItem() == null)
-            menu.onEmptySlotClick(menu.getViewer(), ButtonPosition.of(page, slot));
+            menu.onEmptySlotClick(artist, ButtonPosition.of(page, slot));
 
         final Button button = menu.getButton(ButtonPosition.of(slot, page));
 
         if (button != null)
-            button.onButtonClick(menu.getViewer(), menu);
-    }
-
-    @EventHandler
-    public final void onMenuOpen(final InventoryOpenEvent event) {
-        final Player player = (Player) event.getPlayer();
-        final Menu menu = Menu.getPlayerMenu(player);
-
-        if (menu == null)
-            return;
-
-        menu.onMenuOpen(menu.getViewer(), menu);
+            button.onButtonClick(artist, menu);
     }
 
     @EventHandler
@@ -61,13 +45,15 @@ public class Listener extends CoreListener {
         if (menu == null)
             return;
 
-        if (menu.getStatus().equals(MenuStatus.UPDATING)) {
-            if (menu.getPage().equals(menu.getLastPage()))
-                menu.onMenuPageChange(menu.getViewer(), menu, menu.getLastPage(), menu.getPage());
-            else menu.onMenuUpdate(menu.getViewer(), menu);
+        final Artist artist = Artist.of(player);
+
+        if (menu.isUpdating()) {
+            if (menu.getPage() == menu.getLastPage())
+                menu.onMenuPageChange(artist, menu, menu.getLastPage(), menu.getPage());
+            else menu.onMenuUpdate(artist, menu);
         } else {
             Menu.rejectPlayerMenu(player);
-            menu.onMenuClose(menu.getViewer(), menu);
+            menu.onMenuClose(artist, menu);
             menu.restartMenu();
         }
     }
