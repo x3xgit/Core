@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import org.jetbrains.annotations.NotNull;
 import technologycommunity.net.core.cooldown.Cooldown;
+import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.menu.Menu;
 import technologycommunity.net.core.menu.Listener;
 import technologycommunity.net.core.plugin.structures.PluginStatus;
@@ -22,6 +23,7 @@ public class Core extends JavaPlugin {
     private static Core instance;
     private PluginStatus status;
     private static Class<? extends Core> parent;
+    private static boolean registered = false;
 
     public static Core getInstance() {
         if (instance == null) {
@@ -70,6 +72,13 @@ public class Core extends JavaPlugin {
     }
 
     protected final void initialize() {
+        if (registered) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            throw new CoreException("Core is already initialized.");
+        } else {
+            registered = true;
+        }
+
         instance = this;
         key = new NamespacedKey(instance, "plugin");
         parent = this.getClass();
@@ -79,6 +88,9 @@ public class Core extends JavaPlugin {
     }
 
     public final void savePluginResource(final @NotNull String resourcePath, final boolean replace) {
+        if (isResourceExist(resourcePath) && !replace)
+            return;
+
         instance.saveResource(resourcePath, replace);
     }
 
