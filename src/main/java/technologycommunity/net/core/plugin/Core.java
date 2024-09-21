@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.jetbrains.annotations.NotNull;
 import technologycommunity.net.core.cooldown.Cooldown;
 import technologycommunity.net.core.menu.Menu;
 import technologycommunity.net.core.menu.Listener;
@@ -77,19 +78,16 @@ public class Core extends JavaPlugin {
         Cooldown.startRunnable();
     }
 
-    public final void savePluginResource(String resourcePath) {
-        File configuration = new File(instance.getDataFolder(), resourcePath);
-
-        if (!configuration.exists()) {
-            boolean isDirectoryCreated = configuration.getParentFile().mkdirs();
-            if (isDirectoryCreated)
-                instance.saveResource(resourcePath, false); else getLogger().severe("Couldn't save plugin resource because directory didn't create.");
-        }
+    public final void savePluginResource(final @NotNull String resourcePath, final boolean replace) {
+        instance.saveResource(resourcePath, replace);
     }
 
-    public final YamlConfiguration getPluginResource(String resourcePath) {
+    public final void savePluginResource(final @NotNull String resourcePath) {
+        this.savePluginResource(resourcePath, false);
+    }
 
-        File configuration = new File(instance.getDataFolder(), resourcePath);
+    public final YamlConfiguration getPluginResource(final @NotNull String resourcePath) {
+        final File configuration = new File(instance.getDataFolder(), resourcePath);
 
         if (!isResourceExist(resourcePath))
             savePluginResource(resourcePath);
@@ -97,7 +95,7 @@ public class Core extends JavaPlugin {
         return YamlConfiguration.loadConfiguration(configuration);
     }
 
-    protected static boolean isResourceExist(String resourcePath) {
+    protected static boolean isResourceExist(final @NotNull String resourcePath) {
         return new File(instance.getDataFolder(), resourcePath).exists();
     }
 
