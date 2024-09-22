@@ -12,9 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import technologycommunity.net.core.Validator;
 import technologycommunity.net.core.constants.CoreConstants;
-import technologycommunity.net.core.menu.model.ItemCore;
-import technologycommunity.net.core.menu.model.meta.SkullModifier;
+import technologycommunity.net.core.menu.model.ItemCreator;
 import technologycommunity.net.core.exception.CoreException;
+import technologycommunity.net.core.menu.model.meta.TextureType;
 import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.menu.structures.RegisteredMenu;
 import technologycommunity.net.core.plugin.Core;
@@ -335,9 +335,9 @@ public abstract class Menu {
 
                         @Override
                         public @NotNull ItemStack getItem() {
-                            return ItemCore.of(Material.PLAYER_HEAD)
+                            return ItemCreator.of(Material.PLAYER_HEAD)
                                     .name((canGo(currentPage) ? "&a" : "&c") + "Next")
-                                    .skull(SkullModifier.BASE64, CoreConstants.SKULLS.skullNextArrowAction)
+                                    .skull(TextureType.BASE64, CoreConstants.SKULLS.skullNextArrowAction)
                                 .create();
                         }
                     }
@@ -361,9 +361,9 @@ public abstract class Menu {
 
                         @Override
                         public @NotNull ItemStack getItem() {
-                            return ItemCore.of(Material.PLAYER_HEAD)
+                            return ItemCreator.of(Material.PLAYER_HEAD)
                                     .name((canBack(currentPage) ? "&a" : "&c") + "Previous")
-                                    .skull(SkullModifier.BASE64, CoreConstants.SKULLS.skullPreviousArrowAction)
+                                    .skull(TextureType.BASE64, CoreConstants.SKULLS.skullPreviousArrowAction)
                                     .create();
                         }
                     }

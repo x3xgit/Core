@@ -1,6 +1,6 @@
 package technologycommunity.net.core.menu.model.meta;
 
-public enum SkullModifier {
+public enum TextureType {
     NICKNAME,
     BASE64,
     URL

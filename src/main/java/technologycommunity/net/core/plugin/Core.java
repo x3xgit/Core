@@ -2,27 +2,19 @@ package technologycommunity.net.core.plugin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import technologycommunity.net.core.command.CoreCommand;
 import technologycommunity.net.core.cooldown.Cooldown;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.menu.Menu;
-import technologycommunity.net.core.menu.Listener;
 import technologycommunity.net.core.logger.CoreLogger;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.sql.Ref;
 import java.util.Objects;
 
 public class Core extends JavaPlugin {
@@ -79,14 +71,6 @@ public class Core extends JavaPlugin {
         } else {
             registered = true;
         }
-
-        new SimpleCommandMap(getServer()).register("test", new Command("testing") {
-            @Override
-            public boolean execute(@NotNull CommandSender commandSender, @NotNull String s, @NotNull String[] strings) {
-                commandSender.sendMessage("testing!!!!!!");
-                return false;
-            }
-        });
 
         instance = this;
         key = new NamespacedKey(instance, "plugin");
@@ -156,21 +140,15 @@ public class Core extends JavaPlugin {
         return parent;
     }
 
-    protected static String getSource() {
-        return getSource(getParent());
-    }
-
     protected static String getSource(Class<?> clazz) {
         return clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
     }
 
-    public static @Nullable CommandMap getCommandMap() {
-        try {
-            return (CommandMap) Objects.requireNonNull(
-                    Remain.fastAccessField(Bukkit.getServer().getClass(), "commandMap"))
-                .get(Bukkit.getServer());
-        } catch (IllegalAccessException | NullPointerException ex) {
-            return null;
-        }
+    protected static String getSource() {
+        return getSource(getParent());
+    }
+
+    public static @NotNull CommandMap getCommandMap() {
+        return Bukkit.getServer().getCommandMap();
     }
 }

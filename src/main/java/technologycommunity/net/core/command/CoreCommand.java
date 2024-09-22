@@ -1,6 +1,5 @@
 package technologycommunity.net.core.command;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -9,11 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import technologycommunity.net.core.color.Corelor;
 import technologycommunity.net.core.cooldown.Cooldown;
 import technologycommunity.net.core.cooldown.structures.Data;
-import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.plugin.Core;
 import technologycommunity.net.core.plugin.Remain;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,13 +49,6 @@ public abstract class CoreCommand extends Command {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(Corelor.format(Messages.playerOnly));
             return true;
-        }
-
-        if (this.getPermission() != null) {
-            if (!player.hasPermission(this.getPermission())) {
-                player.sendMessage();
-                return true;
-            }
         }
 
         final double cooldown = Cooldown.get(new Data(player.getUniqueId(), this.uuid));

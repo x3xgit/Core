@@ -12,10 +12,10 @@ import technologycommunity.net.core.plugin.Core;
 
 import java.io.Serializable;
 
-public class Validator {
+public class DataTypeVerifier {
     private final ItemStack item;
 
-    public Validator(final @NotNull ItemStack item) {
+    public DataTypeVerifier(final @NotNull ItemStack item) {
         this.item = item;
     }
 
