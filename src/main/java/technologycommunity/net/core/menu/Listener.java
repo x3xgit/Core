@@ -6,10 +6,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 
+import technologycommunity.net.core.annotations.AutoRegister;
 import technologycommunity.net.core.menu.structures.ButtonPosition;
 import technologycommunity.net.core.listener.internal.CoreListener;
 import technologycommunity.net.core.structures.Artist;
 
+@AutoRegister
 public class Listener extends CoreListener {
     @EventHandler
     public final void onMenuClick(final InventoryClickEvent event) {

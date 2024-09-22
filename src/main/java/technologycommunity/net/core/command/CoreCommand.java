@@ -11,6 +11,7 @@ import technologycommunity.net.core.cooldown.Cooldown;
 import technologycommunity.net.core.cooldown.structures.Data;
 import technologycommunity.net.core.exception.CoreException;
 import technologycommunity.net.core.plugin.Core;
+import technologycommunity.net.core.plugin.Remain;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -34,29 +35,8 @@ public abstract class CoreCommand extends Command {
         this.setPermissionMessage(Corelor.format("&cYou don't have a permission to use this command."));
     }
 
-    public final void register() {
-        CommandMap commandMap = this.getCommandMap();
-
-        if (commandMap == null)
-            throw new CoreException("Couldn't get command map, command was not registered.");
-
-        if (commandMap.getCommand(this.label) != null) {
-            Core.getInstance().getCoreLogger().warning("Couldn't register command. It's already been registered. (%s)".formatted(this.label));
-            return;
-        }
-
-        commandMap.register(
-                Core.getInstance().getDescription().getName().toLowerCase(), this);
-    }
-
-    private @Nullable CommandMap getCommandMap() {
-        try {
-            Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            commandMapField.setAccessible(true);
-            return (CommandMap) commandMapField.get(Bukkit.getServer());
-        } catch (Exception e) {
-            return null;
-        }
+    public final boolean register() {
+        return Remain.registerCommand(this);
     }
 
     /*

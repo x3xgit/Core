@@ -34,7 +34,7 @@ public abstract class Menu {
     private @NotNull Integer lastPage = this.getFirstPage();
     private @Nullable Artist viewer = null;
 
-    private boolean updating;
+    private boolean updating = false;
 
     private boolean allowPlayerInventory = true;
 
@@ -195,7 +195,7 @@ public abstract class Menu {
         return pageInv;
     }
 
-    private void openMenu() {
+    private void openMenu(final @NotNull Menu menu) {
         if (!Validator.checkNotNull(this.viewer))
             return;
 
@@ -204,16 +204,12 @@ public abstract class Menu {
         final Player player = this.getViewer().getPlayer();
         final Artist artist = Artist.of(player);
 
-        final Menu currentMenu = this;
-        final Menu lastMenu = getPlayerMenu(player);
-
         this.viewer.openInventory(inventory);
-        Menu.setPlayerMenu(this.getViewer().getPlayer(), currentMenu);
+        Menu.setPlayerMenu(this.getViewer().getPlayer(), menu);
+    }
 
-        if (lastMenu != null)
-            this.onMenuChange(this.viewer, lastMenu, currentMenu);
-
-        this.onMenuOpen(artist, currentMenu);
+    protected void openMenu() {
+        this.openMenu(this);
     }
 
     private void update(final Runnable task) {
@@ -232,8 +228,16 @@ public abstract class Menu {
     }
 
     public final void displayTo(final @NotNull Player player) {
+        final Menu lastMenu = getPlayerMenu(player);
+        final Menu menu = this;
+
         this.viewer = Artist.of(player);
-        this.openMenu();
+        this.openMenu(menu);
+
+        if (lastMenu != null)
+            this.onMenuChange(this.viewer, lastMenu, menu);
+
+        this.onMenuOpen(this.viewer, menu);
     }
 
     protected final void registerButton(final Button button) {
